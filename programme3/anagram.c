@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <limits.h>
+#include "dict.h"
 
 char *sortArr(char[]);
 bool isAnagram(char *, char *);
@@ -12,7 +14,6 @@ bool isEqual(char *str1, char *str2)
     int i;
     for (i = 0; i < strlen(str1); i++)
     {
-        // check string is equal or not
         if (str1[i] != str2[i])
         {
             return false;
@@ -20,6 +21,7 @@ bool isEqual(char *str1, char *str2)
     }
     return true;
 }
+
 bool isAnagram(char *str1, char *str2)
 {
     if (strlen(str1) != strlen(str2) || isEqual(str1, str2))
@@ -63,37 +65,94 @@ char *sortArr(char a1[])
     return a1;
 }
 
-
+void incrementDict(dict_t **dict, char *path)
+{
+    FILE *pFile, *pFile2;
+    pFile = fopen(path, "r");
+    if (pFile != NULL)
+    {
+        char *a = (char *)malloc(20);
+        char *b = (char *)malloc(20);
+        while (fscanf(pFile, "%s", a) != EOF)
+        {
+            pFile2 = fopen(path, "r");
+            if (pFile2 != NULL)
+            {
+                while (fscanf(pFile2, "%s", b) != EOF)
+                {
+                    if (isAnagram(a, b))
+                    {
+                        incrementItem(dict, a);
+                    }
+                }
+            }
+        }
+        fclose(pFile);
+        fclose(pFile2);
+    }
+    else
+    {
+        printf("File does not exist.\n");
+    }
+}
 
 int main(int argc, char **argv)
 {
     if (argc != 2)
     {
         printf("veuillez entrer une commande valide ");
-        printf("%s", argv[1]);
         return 0;
     }
+    dict_t **dict = dictAlloc();
+
     FILE *pFile, *pFile2;
-    pFile = fopen("Dico_nn_V2/Dico_nn/Dico_03.txt", "r");
+    // création du dict avec 0 partout
+    pFile = fopen(argv[1], "r");
     if (pFile != NULL)
     {
-        char *a = (char *)malloc(40);
-        char *b = (char *)malloc(40);
-        while (fscanf(pFile, "%s", a) != EOF)  // get the word of each line
+        char *key = (char *)malloc(20);
+        while (fscanf(pFile, "%s", key) != EOF)
         {
-            printf("%s : ", a);
-            pFile2 = fopen("Dico_nn_V2/Dico_nn/Dico_03.txt", "r");
-            
-            if (pFile2 != NULL)
+            addItem(dict, key, 0);
+        }
+    }
+
+    //deleteDoublons(dict);
+    delItem(dict,"AI");
+    incrementDict(dict, argv[1]);
+    //printDict(dict);
+    int count =0;
+    pFile = fopen(argv[1], "r");
+    if (pFile != NULL)
+    {
+        char *a = (char *)malloc(20);
+        char *b = (char *)malloc(20);
+        for (int i = 20; i >= 0; i--)
+        {
+            pFile = fopen(argv[1], "r");
+            while (fscanf(pFile, "%s", a) != EOF)
             {
-                while (fscanf(pFile2, "%s", b) != EOF)
+                if (getItem(dict, a) == i)
                 {
-                    if (isAnagram(a, b))
-                        printf("%s | %s - ", a, b);
+                    if(getItem(dict, a) >=1)
+                        count ++;
+                    printf("%s (%d): ", a, getItem(dict, a));
+                    pFile2 = fopen(argv[1], "r");
+                    if (pFile2 != NULL)
+                    {
+                        while (fscanf(pFile2, "%s", b) != EOF)
+                        {
+                            if (isAnagram(a, b))
+                            {
+                                printf("%s | %s ", a, b);
+                            }
+                        }
+                        printf("\n");
+                    }
                 }
-                printf("\n");
             }
         }
+        printf("Nombre de mots dans le dictionnaire possédant au moins 1 anagramme : %d\n",count);
         fclose(pFile);
         fclose(pFile2);
     }
