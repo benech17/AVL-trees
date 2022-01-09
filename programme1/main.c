@@ -4,9 +4,8 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "include/traces.h" 
+#include "include/traces.h"
 
-// C'est dans le fichier elt.h qu'on doit choisir l'implémentation des T_elt
 #include "elt.h"
 #include "avl.h"
 
@@ -14,41 +13,45 @@
 
 int isNumber(char s[])
 {
-    for (int i = 0; s[i]!= '\0'; i++)
-    {
-        if (isdigit(s[i]) == 0)
-              return 0;
-    }
-    return 1;
+	for (int i = 0; s[i] != '\0'; i++)
+	{
+		if (isdigit(s[i]) == 0)
+			return 0;
+	}
+	return 1;
 }
 
-int main(int argc,char **argv) {
-	if(argc != 3 || !isNumber(argv[2])){
-		printf("Veuillez entrer une commande valide");
+int main(int argc, char **argv)
+{
+	if (argc != 3 || !isNumber(argv[2]))
+	{
+		printf("Veuillez entrer une commande valide.\nExemple : ./main.exe PrenomsV1.txt 10\n");
+		return 1;
 	}
-	T_avl root = NULL; 
+	T_avl root = NULL;
 	int N = atoi(argv[2]);
-	
+
 	outputPath = "output";
-	
-	FILE* prenom;
-	prenom=fopen("PrenomsV1.txt","r");
-	char chaine[TAILLE_MAX] = "";
-	for (int i=0;i<N;i++){
-		char nom[TAILLE_MAX] = "";
-		fgets(nom,TAILLE_MAX,prenom);
-		insertAVL(&root, nom);
-		createDotAVL(root, chaine);
+
+	FILE *pFile;
+	pFile = fopen(argv[1], "r");
+	if (pFile != NULL)
+	{
+		char chaine[TAILLE_MAX] = "";
+		for (int i = 0; i < N; i++)
+		{
+			char nom[TAILLE_MAX] = "";
+			fgets(nom, TAILLE_MAX, pFile);
+			insertAVL(&root, nom);
+			createDotAVL(root, chaine);
+		}
 	}
-	
-	printAVL(root, 0); 
-	
+	else
+	{
+		printf("Fichier introuvable. Vérifiez le chemin relatif.\n");
+	}
+
+	printAVL(root, 0);
+
 	return 0;
 }
-
-
-
-
-
-
-
