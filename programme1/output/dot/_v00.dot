@@ -14,10 +14,10 @@ digraph  {
 		color     = "blue"
 	]
 
-	"JEANNINE
-" [label = "{{<c> JEANNINE
- | <b> 0} | { <g> | <d>}}"];
-	"JEANNINE
-" [label = "{{<c> JEANNINE
- | <b> 0} | { <g> | <d>}}"];
+	JEANNINE
+ [label = "{{<c> JEANNINE
+ | <b> 0}| { <g> | <d>}}"];
+	JEANNINE
+ [label = "{{<c> JEANNINE
+ | <b> 0}| { <g> NULL | <d> NULL}}"];
 }

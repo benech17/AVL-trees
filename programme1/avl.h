@@ -18,10 +18,10 @@ typedef enum {
 } T_bal;
 
 typedef struct aNode{
-	T_elt val; // élément contenu dans le noeud 
-	T_bal bal; // facteur de déséquilibre
-	struct aNode *l; // pointeur vers sous-arbre gauche
-	struct aNode *r; // pointeur vers sous-arbre droit 
+	T_elt val; 
+	T_bal bal; 
+	struct aNode *l; 
+	struct aNode *r;
 } T_avlNode, *T_avl;
 
 extern char * outputPath;
