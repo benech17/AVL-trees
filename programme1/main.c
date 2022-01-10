@@ -11,6 +11,7 @@
 
 #define TAILLE_MAX 15
 
+// fonction pour verifier si la chaine de charactère est bien un nombre
 int isNumber(char s[])
 {
 	for (int i = 0; s[i] != '\0'; i++)
@@ -23,13 +24,16 @@ int isNumber(char s[])
 
 int main(int argc, char **argv)
 {
+	// on verifie que l'user a bien entrée le bon nombre d'argument et le bon type
 	if (argc != 3 || !isNumber(argv[2]))
 	{
 		printf("Veuillez entrer une commande valide.\nExemple : ./main.exe PrenomsV1.txt 10\n");
 		return 1;
 	}
+
 	T_avl root = NULL;
-	int N = atoi(argv[2]);
+	// atoi est une fonction qui cast un string en int
+	int nbPrenoms = atoi(argv[2]);
 
 	outputPath = "output";
 
@@ -38,7 +42,7 @@ int main(int argc, char **argv)
 	if (pFile != NULL)
 	{
 		char chaine[TAILLE_MAX] = "";
-		for (int i = 0; i < N; i++)
+		for (int i = 0; i < nbPrenoms; i++)
 		{
 			char nom[TAILLE_MAX] = "";
 			fgets(nom, TAILLE_MAX, pFile);
@@ -50,8 +54,6 @@ int main(int argc, char **argv)
 	{
 		printf("Fichier introuvable. Vérifiez le chemin relatif.\n");
 	}
-
 	printAVL(root, 0);
-
 	return 0;
 }

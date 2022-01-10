@@ -1,15 +1,13 @@
 #include <assert.h>
 #include <sys/stat.h>
 #include <string.h>
+#include "elt.h" 
+#include "avl.h" 
+#include <stdio.h>
+#include <stdlib.h>
 
-//#define CLEAR2CONTINUE
 #include "include/traces.h"
-
-//#define DEBUG
 #include "include/check.h"
-
-#include "elt.h" // T_elt
-#include "avl.h" // prototypes
 
 char *outputPath = ".";
 
@@ -20,7 +18,6 @@ static T_avlNode *balanceAVL(T_avlNode *A);
 
 static T_avl newNodeAVL(T_elt e)
 {
-
 	T_avlNode *pAux;
 	pAux = (T_avlNode *)malloc(sizeof(T_avlNode));
 	CHECK_IF(pAux, NULL, "erreur malloc dans newNode");
@@ -28,15 +25,11 @@ static T_avl newNodeAVL(T_elt e)
 	pAux->bal = 0;
 	pAux->l = NULL;
 	pAux->r = NULL;
-
 	return pAux;
 }
 
 int insertAVL(T_avlNode **pRoot, T_elt e)
 {
-	// ordre de récurrence ? hauteur du sous arbre
-	// cas de base ? L'arbre est vide
-
 	T_avl A = (*pRoot);
 	if (A == NULL)
 	{ // si l'arbre est vide, on y ajoute la racine
@@ -141,8 +134,6 @@ static T_avlNode *balanceAVL(T_avlNode *A)
 	return A;
 }
 
-// IDEM pour ABR sauf genDotAVL
-
 void printAVL(T_avl root, int indent)
 {
 	int i;
@@ -227,134 +218,7 @@ T_avlNode *searchAVL_it(T_avl root, T_elt e)
 	return NULL;
 }
 
-/*static void genDotAVL(T_avl root, FILE *fp)
-{
-	// Attention : les fonction toString utilisent un buffer alloué comme une variable statique
-	// => elles renvoient toujours la même adresse
-	// => on ne peut pas faire deux appels à toString dans le même printf()
-	// Ajout de guillemets afin d'éviter les problèmes en cas de "-" dans un
-
-	fprintf(fp, "\t\"%s\"", toString(root->val));
-	fprintf(fp, " [label = \"{{<c> %s | <b> %d} | { <g> | <d>}}\"];\n", toString(root->val), root->bal);
-	if (root->r == NULL && root->l == NULL)
-	{
-		fprintf(fp, "\t\"%s\"", toString(root->val));
-		fprintf(fp, " [label = \"{{<c> %s | <b> %d} | { <g> | <d>}}\"];\n", toString(root->val), root->bal);
-	}
-	else if (root->r == NULL)
-	{
-		fprintf(fp, "\t\"%s\"", toString(root->val));
-		fprintf(fp, " [label = \"{{<c> %s | <b> %d} | { <g> | <d>}}\"];\n", toString(root->val), root->bal);
-	}
-	else if (root->l == NULL)
-	{
-		fprintf(fp, "\t\"%s\"", toString(root->val));
-		fprintf(fp, " [label = \"{{<c> %s | <b> %d} | { <g> | <d>}}\"];\n", toString(root->val), root->bal);
-	}
-
-	if (root->l)
-	{
-		fprintf(fp, "\t\"%s\"", toString(root->val));
-		fprintf(fp, ":g -> \"%s\";\n", toString(root->l->val));
-		genDotAVL(root->l, fp);
-	}
-
-	if (root->r)
-	{
-		fprintf(fp, "\t\"%s\"", toString(root->val));
-		fprintf(fp, ":d -> \"%s\";\n", toString(root->r->val));
-		genDotAVL(root->r, fp);
-	}
-}
-
-void createDotAVL(const T_avl root, const char *basename)
-{
-	static char oldBasename[FILENAME_MAX + 1] = "";
-	static unsigned int noVersion = 0;
-
-	char DOSSIER_DOT[FILENAME_MAX + 1];
-	char DOSSIER_PNG[FILENAME_MAX + 1];
-
-	char fnameDot[FILENAME_MAX + 1];
-	char fnamePng[FILENAME_MAX + 1];
-	char cmdLine[2 * FILENAME_MAX + 20];
-	FILE *fp;
-	struct stat sb;
-
-	// Au premier appel, création (si nécessaire) des répertoires
-	// où seront rangés les fichiers .dot et .png générés par cette fonction
-
-	// il faut créer le répertoire outputPath s'il n'existe pas
-	if (stat(outputPath, &sb) == 0 && S_ISDIR(sb.st_mode))
-	{
-	}
-	else
-	{
-		printf("Création du répertoire %s\n", outputPath);
-		mkdir(outputPath, 0777);
-	}
-
-	// il faut créer les répertoires outputPath/png et /dot
-	sprintf(DOSSIER_DOT, "%s/dot/", outputPath);
-	sprintf(DOSSIER_PNG, "%s/png/", outputPath);
-
-	if (oldBasename[0] == '\0')
-	{
-		mkdir(DOSSIER_DOT, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-		mkdir(DOSSIER_PNG, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-	}
-
-	// S'il y a changement de nom de base alors recommencer à zéro
-	// la numérotation des fichiers
-
-	if (strcmp(oldBasename, basename) != 0)
-	{
-		noVersion = 0;
-		strcpy(oldBasename, basename);
-	}
-
-	sprintf(fnameDot, "%s%s_v%02u.dot", DOSSIER_DOT, basename, noVersion);
-	sprintf(fnamePng, "%s%s_v%02u.png", DOSSIER_PNG, basename, noVersion);
-
-	CHECK_IF(fp = fopen(fnameDot, "w"), NULL, "erreur fopen dans saveDotBST");
-
-	noVersion++;
-	fprintf(fp, "digraph %s {\n", basename);
-	fprintf(fp,
-			"\tnode [\n"
-			"\t\tfontname  = \"Arial bold\" \n"
-			"\t\tfontsize  = \"14\"\n"
-			"\t\tfontcolor = \"red\"\n"
-			"\t\tstyle     = \"rounded, filled\"\n"
-			"\t\tshape     = \"record\"\n"
-			"\t\tfillcolor = \"grey90\"\n"
-			"\t\tcolor     = \"blue\"\n"
-			"\t\twidth     = \"2\"\n"
-			"\t]\n"
-			"\n"
-			"\tedge [\n"
-			"\t\tcolor     = \"blue\"\n"
-			"\t]\n\n");
-
-	if (root == NULL)
-		fprintf(fp, "\n");
-	else
-		genDotAVL(root, fp);
-
-	fprintf(fp, "}\n");
-	fclose(fp);
-
-	sprintf(cmdLine, "dot -Tpng  %s -o %s", fnameDot, fnamePng);
-	system(cmdLine);
-
-	printf("Creation de '%s' et '%s' ... effectuee\n", fnameDot, fnamePng);
-}*/
-
-static void  genDotAVL(T_avl root, FILE *fp) {
-	// Attention : les fonction toString utilisent un buffer alloué comme une variable statique 
-	// => elles renvoient toujours la même adresse 
-	// => on ne peut pas faire deux appels à toString dans le même printf()
-
+static void  makeDot(T_avl root, FILE *fp) {
     fprintf(fp, "\t%s",toString(root->val)); 
     fprintf(fp, " [label = \"{{<c> %s | <b> %d}| { <g> | <d>}}\"];\n",toString(root->val),root->bal);
     if (root->r == NULL && root->l == NULL) {
@@ -370,19 +234,21 @@ static void  genDotAVL(T_avl root, FILE *fp) {
 		fprintf(fp, " [label = \"{{<c> %s | <b> %d}| { <g> NULL | <d> }}\"];\n", toString(root->val),root->bal);
 	}
 	
-    if (root->l) {
+
+	// Si fils gauche existe, on appelle récursivement cette fonction avec pour racine le fils gauche
+    if (root->l ) {
         fprintf(fp, "\t%s",toString(root->val));
 		fprintf(fp, ":g -> %s;\n", toString(root->l->val));
-        genDotAVL(root->l, fp);
+        makeDot(root->l, fp);
     }
 
+	// Si fils droit existe, on appelle récursivement cette fonction avec pour racine le fils droit
     if (root->r) {
         fprintf(fp, "\t%s",toString(root->val));
 		fprintf(fp,":d -> %s;\n", toString(root->r->val));
-        genDotAVL(root->r, fp);
+        makeDot(root->r, fp);
     }
 }
-
 
 void createDotAVL(const T_avl root, const char *basename) {
 	static char oldBasename[FILENAME_MAX + 1] = "";
@@ -393,11 +259,10 @@ void createDotAVL(const T_avl root, const char *basename) {
 
 	char fnameDot [FILENAME_MAX + 1];
 	char fnamePng [FILENAME_MAX + 1];
-	char	cmdLine [2 * FILENAME_MAX + 20];
+	char cmdLine [2 * FILENAME_MAX + 20];
 	FILE *fp;
 	struct stat sb;
 	
-
 	// Au premier appel, création (si nécessaire) des répertoires
 	// où seront rangés les fichiers .dot et .png générés par cette fonction	
 
@@ -417,8 +282,7 @@ void createDotAVL(const T_avl root, const char *basename) {
 		mkdir(DOSSIER_PNG,	S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 	}
 
-	 // S'il y a changement de nom de base alors recommencer à zéro
-	 // la numérotation des fichiers 
+	 // S'il y a changement de nom de base alors recommencer à zéro la numérotation des fichiers 
 
 	if (strcmp(oldBasename, basename) != 0) {
 		noVersion = 0;
@@ -452,7 +316,7 @@ void createDotAVL(const T_avl root, const char *basename) {
     if (root == NULL)
         fprintf(fp, "\n");
     else
-        genDotAVL(root, fp);
+        makeDot(root, fp);
 
     fprintf(fp, "}\n");	
     fclose(fp);

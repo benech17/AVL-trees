@@ -8,7 +8,7 @@
 #define	MAX3(a, b, c)	((a) >= (b) ? MAX2(a, c) : MAX2(b, c))
 #define	MIN3(a, b,c )	((a) <= (b) ? MIN2(a, c) : MIN2(b, c))
 
-// Type définissant le facteur d'équilibre (bal) d'un noeud d'un arbre binaire
+// Type définissant le facteur d'équilibre (bal) d'un noeud 
 typedef enum {
     DOUBLE_RIGHT = -2,
     RIGHT = -1,
@@ -32,10 +32,7 @@ int heightAVL(T_avl);
 int nbNodesAVL(T_avl);
 T_avlNode * searchAVL_rec(T_avl root, T_elt e);
 T_avlNode * searchAVL_it(T_avl root, T_elt e);
-
 void createDotAVL(const T_avl root, const char *basename); 
-
-
 
 #endif 
 
