@@ -1,8 +1,8 @@
 #include <assert.h>
 #include <sys/stat.h>
 #include <string.h>
-#include "elt.h" 
-#include "avl.h" 
+#include "elt.h"
+#include "avl.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -32,33 +32,22 @@ int insertAVL(T_avlNode **pRoot, T_elt e)
 {
 	T_avl A = (*pRoot);
 	if (A == NULL)
-	{ // si l'arbre est vide, on y ajoute la racine
-		(*pRoot) = newNodeAVL(e);
-		return 1; // on renvoit 1 car la hauteur de l'arbre a augmenté
+	{
+		(*pRoot) = newNodeAVL(e); // si l'arbre est vide, on y ajoute la racine
+		return 1;
 	}
-	// cas général
-	int deltaH = 0; // deltaH est la variation de hauteur induite par l'ajout de la feuille
-
+	// variation de hauteur induite par l'ajout de la feuille
+	int deltaH = 0;
 	if (eltcmp(e, A->val) <= 0)
-	{										   // l'élément doit aller coté gauche car plus petit ou égal
+	{
 		deltaH = insertAVL(&((*pRoot)->l), e); // insertion dans la sous-arbre gauche
-		A->bal += deltaH;					   // on a mis à gauche donc le facteur de déséquilibre augmente
+		A->bal += deltaH;					   // incrémentation du facteur de déséquilibre
 	}
-
 	else if (eltcmp(e, A->val) > 0)
-	{ // l'élément doit aller à droite
-		deltaH = insertAVL(&((*pRoot)->r), e);
-		A->bal -= deltaH; //à droite donc le facteur de déséquilibre diminue
+	{
+		deltaH = insertAVL(&((*pRoot)->r), e); // insertion dans la sous-arbre droit
+		A->bal -= deltaH;					   // facteur de déséquilibre diminue de 1
 	}
-
-	/*if ((A->bal)==2 || (A->bal)==-2){	//Si la racine est déséquilibrée, on utilise la fonction balanceAVL pour rééquilibrer
-			(*pRoot)=balanceAVL(A);
-	}
-
-	if (A->bal==1 || A->bal==-1) return 1;//Si la racine de l'arbre est déséquilibré on renvoie 1
-
-	else return 0;				//Sinon (elle est équilibrée), on renvoie 0
-	*/
 	if (deltaH == 0)
 	{
 		return 0;
@@ -75,8 +64,6 @@ int insertAVL(T_avlNode **pRoot, T_elt e)
 
 static T_avlNode *rotateLeftAVL(T_avlNode *B)
 { // B est le noeud au dessus de celui qui est doublement déséquilibré
-	// rotation gauche
-
 	T_avlNode *A;
 	A = B->r;
 	B->r = A->l;
@@ -90,23 +77,20 @@ static T_avlNode *rotateLeftAVL(T_avlNode *B)
 
 static T_avlNode *rotateRightAVL(T_avlNode *A)
 {
-	// rotation droite
-
-	T_avlNode *B;
-	B = A->l;	 // on définit B comme le noeud dont est issu le sous arbre de gauche de A
-	A->l = B->r; // on fait les échanges pour faire les rotations d'après le schéma de la slide 87
+	T_avlNode *B; //  noeud dont est issu le sous arbre de gauche de A
+	B = A->l;
+	A->l = B->r; // slide 87
 	B->r = A;
 
-	A->bal = A->bal - 1 - MAX2(0, B->bal); // on utilise la formule pour mettre la nouvelle balance de A
-	B->bal = B->bal - 1 + MIN2(0, A->bal); // nouvelle balance de B
+	A->bal = A->bal - 1 - MAX2(0, B->bal);
+	B->bal = B->bal - 1 + MIN2(0, A->bal);
 	return B;
 }
 
 static T_avlNode *balanceAVL(T_avlNode *A)
 {
-	// rééquilibrage de A
 	if (A->bal == 2)
-	{ // si il y a violation de la propriété et que l'arbre issu de A penche à gauche
+	{ // violation de la propriété
 		if ((A->l)->bal < 0)
 		{								// si le sous arbre de gauche issus de A penche à droite
 			A->l = rotateLeftAVL(A->l); // on fait la première rotation
@@ -137,26 +121,20 @@ static T_avlNode *balanceAVL(T_avlNode *A)
 void printAVL(T_avl root, int indent)
 {
 	int i;
-	// ordre de la récurrence : hauteur de l'arbre
-	// Affiche la racine de l'arbre passé en paramètre avec un niveau d'indentation proportionnel à la profondeur du sous-arbre
-
-	// pas de cas de base...
 	if (root != NULL)
 	{
-		// afficher le sous-arbre droit avec indentation+1
-		printAVL(root->r, indent + 1);
-		// afficher le noeud racine
+		printAVL(root->r, indent + 1); // afficher le sous-arbre droit avec indentation+1
+
 		for (i = 0; i < indent; i++)
 			printf("\t");
 		printf("%s (%d) \n ", toString(root->val), root->bal);
-		// afficher le sous-arbre gauche avec indentation+1
-		printAVL(root->l, indent + 1);
+
+		printAVL(root->l, indent + 1); // afficher le sous-arbre gauche avec indentation+1
 	}
 }
 
 int heightAVL(T_avl root)
 {
-	// hauteur d'un arbre
 	int l, r;
 	if (root == NULL)
 		return -1;
@@ -169,7 +147,6 @@ int heightAVL(T_avl root)
 
 int nbNodesAVL(T_avl root)
 {
-	// nb de noeuds d'un arbre (y compris les feuilles)
 	if (root == NULL)
 		return 0;
 
@@ -218,86 +195,97 @@ T_avlNode *searchAVL_it(T_avl root, T_elt e)
 	return NULL;
 }
 
-static void  makeDot(T_avl root, FILE *fp) {
-    fprintf(fp, "\t%s",toString(root->val)); 
-    fprintf(fp, " [label = \"{{<c> %s | <b> %d}| { <g> | <d>}}\"];\n",toString(root->val),root->bal);
-    if (root->r == NULL && root->l == NULL) {
-        fprintf(fp, "\t%s", toString(root->val)); 
-		fprintf(fp, " [label = \"{{<c> %s | <b> %d}| { <g> NULL | <d> NULL}}\"];\n", toString(root->val),root->bal);
+static void makeDot(T_avl root, FILE *fp)
+{
+	fprintf(fp, "\t%s", toString(root->val));
+	fprintf(fp, " [label = \"{{<c> %s | <b> %d}| { <g> | <d>}}\"];\n", toString(root->val), root->bal);
+	if (root->r == NULL && root->l == NULL)
+	{
+		fprintf(fp, "\t%s", toString(root->val));
+		fprintf(fp, " [label = \"{{<c> %s | <b> %d}| { <g> NULL | <d> NULL}}\"];\n", toString(root->val), root->bal);
 	}
-    else if (root->r == NULL) {
-        fprintf(fp, "\t%s", toString(root->val));
-		fprintf(fp, " [label = \"{{<c> %s | <b> %d}| { <g> | <d> NULL}}\"];\n", toString(root->val),root->bal);
+	else if (root->r == NULL)
+	{
+		fprintf(fp, "\t%s", toString(root->val));
+		fprintf(fp, " [label = \"{{<c> %s | <b> %d}| { <g> | <d> NULL}}\"];\n", toString(root->val), root->bal);
 	}
-	else if ( root->l == NULL) {
-        fprintf(fp, "\t%s",toString(root->val));
-		fprintf(fp, " [label = \"{{<c> %s | <b> %d}| { <g> NULL | <d> }}\"];\n", toString(root->val),root->bal);
+	else if (root->l == NULL)
+	{
+		fprintf(fp, "\t%s", toString(root->val));
+		fprintf(fp, " [label = \"{{<c> %s | <b> %d}| { <g> NULL | <d> }}\"];\n", toString(root->val), root->bal);
 	}
-	
 
 	// Si fils gauche existe, on appelle récursivement cette fonction avec pour racine le fils gauche
-    if (root->l ) {
-        fprintf(fp, "\t%s",toString(root->val));
+	if (root->l)
+	{
+		fprintf(fp, "\t%s", toString(root->val));
 		fprintf(fp, ":g -> %s;\n", toString(root->l->val));
-        makeDot(root->l, fp);
-    }
+		makeDot(root->l, fp);
+	}
 
 	// Si fils droit existe, on appelle récursivement cette fonction avec pour racine le fils droit
-    if (root->r) {
-        fprintf(fp, "\t%s",toString(root->val));
-		fprintf(fp,":d -> %s;\n", toString(root->r->val));
-        makeDot(root->r, fp);
-    }
+	if (root->r)
+	{
+		fprintf(fp, "\t%s", toString(root->val));
+		fprintf(fp, ":d -> %s;\n", toString(root->r->val));
+		makeDot(root->r, fp);
+	}
 }
 
-void createDotAVL(const T_avl root, const char *basename) {
+void createDotAVL(const T_avl root, const char *basename)
+{
 	static char oldBasename[FILENAME_MAX + 1] = "";
 	static unsigned int noVersion = 0;
 
-	char DOSSIER_DOT[FILENAME_MAX + 1]; 
-	char DOSSIER_PNG[FILENAME_MAX + 1]; 
+	char DOSSIER_DOT[FILENAME_MAX + 1];
+	char DOSSIER_PNG[FILENAME_MAX + 1];
 
-	char fnameDot [FILENAME_MAX + 1];
-	char fnamePng [FILENAME_MAX + 1];
-	char cmdLine [2 * FILENAME_MAX + 20];
+	char fnameDot[FILENAME_MAX + 1];
+	char fnamePng[FILENAME_MAX + 1];
+	char cmdLine[2 * FILENAME_MAX + 20];
 	FILE *fp;
 	struct stat sb;
-	
+
 	// Au premier appel, création (si nécessaire) des répertoires
-	// où seront rangés les fichiers .dot et .png générés par cette fonction	
+	// où seront rangés les fichiers .dot et .png générés par cette fonction
 
-	// il faut créer le répertoire outputPath s'il n'existe pas 
-	if (stat(outputPath, &sb) == 0 && S_ISDIR(sb.st_mode)) {
-    } else {
-        printf("Création du répertoire %s\n", outputPath);
+	// il faut créer le répertoire outputPath s'il n'existe pas
+	if (stat(outputPath, &sb) == 0 && S_ISDIR(sb.st_mode))
+	{
+	}
+	else
+	{
+		printf("Création du répertoire %s\n", outputPath);
 		mkdir(outputPath, 0777);
-    }
-
-	// il faut créer les répertoires outputPath/png et /dot 
-	sprintf(DOSSIER_DOT, "%s/dot/",outputPath);
-	sprintf(DOSSIER_PNG, "%s/png/",outputPath);
-
-	if (oldBasename[0] == '\0') {
-		mkdir(DOSSIER_DOT,	S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-		mkdir(DOSSIER_PNG,	S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 	}
 
-	 // S'il y a changement de nom de base alors recommencer à zéro la numérotation des fichiers 
+	// il faut créer les répertoires outputPath/png et /dot
+	sprintf(DOSSIER_DOT, "%s/dot/", outputPath);
+	sprintf(DOSSIER_PNG, "%s/png/", outputPath);
 
-	if (strcmp(oldBasename, basename) != 0) {
+	if (oldBasename[0] == '\0')
+	{
+		mkdir(DOSSIER_DOT, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+		mkdir(DOSSIER_PNG, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+	}
+
+	// S'il y a changement de nom de base alors recommencer à zéro la numérotation des fichiers
+
+	if (strcmp(oldBasename, basename) != 0)
+	{
 		noVersion = 0;
-		strcpy(oldBasename, basename); 
+		strcpy(oldBasename, basename);
 	}
 
 	sprintf(fnameDot, "%s%s_v%02u.dot", DOSSIER_DOT, basename, noVersion);
 	sprintf(fnamePng, "%s%s_v%02u.png", DOSSIER_PNG, basename, noVersion);
 
-	CHECK_IF(fp = fopen(fnameDot, "w"), NULL, "erreur fopen dans saveDotBST"); 
-	
-	noVersion ++;
-    fprintf(fp, "digraph %s {\n", basename);
- 	fprintf(fp, 
-		"\tnode [\n"
+	CHECK_IF(fp = fopen(fnameDot, "w"), NULL, "erreur fopen dans saveDotBST");
+
+	noVersion++;
+	fprintf(fp, "digraph %s {\n", basename);
+	fprintf(fp,
+			"\tnode [\n"
 			"\t\tfontname  = \"Arial bold\" \n"
 			"\t\tfontsize  = \"14\"\n"
 			"\t\tfontcolor = \"red\"\n"
@@ -307,22 +295,21 @@ void createDotAVL(const T_avl root, const char *basename) {
 			"\t\tcolor     = \"blue\"\n"
 			"\t\twidth     = \"2\"\n"
 			"\t]\n"
-		"\n"
-		"\tedge [\n"
+			"\n"
+			"\tedge [\n"
 			"\t\tcolor     = \"blue\"\n"
-		"\t]\n\n"
-	);
+			"\t]\n\n");
 
-    if (root == NULL)
-        fprintf(fp, "\n");
-    else
-        makeDot(root, fp);
+	if (root == NULL)
+		fprintf(fp, "\n");
+	else
+		makeDot(root, fp);
 
-    fprintf(fp, "}\n");	
-    fclose(fp);
+	fprintf(fp, "}\n");
+	fclose(fp);
 
-    sprintf(cmdLine, "dot -Tpng  %s -o %s", fnameDot, fnamePng);
-    system(cmdLine);
+	sprintf(cmdLine, "dot -Tpng  %s -o %s", fnameDot, fnamePng);
+	system(cmdLine);
 
-    printf("Creation de '%s' et '%s' ... effectuee\n", fnameDot, fnamePng);
+	printf("Creation de '%s' et '%s' ... effectuee\n", fnameDot, fnamePng);
 }

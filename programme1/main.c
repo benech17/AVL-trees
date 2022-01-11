@@ -27,7 +27,7 @@ int main(int argc, char **argv)
 	// on verifie que l'user a bien entrée le bon nombre d'argument et le bon type
 	if (argc != 3 || !isNumber(argv[2]))
 	{
-		printf("Veuillez entrer une commande valide.\nExemple : ./main.exe PrenomsV1.txt 10\n");
+		printf("Veuillez entrer une commande valide.\nExemple : ./displayAVL.exe PrenomsV1.txt 10\n");
 		return 1;
 	}
 

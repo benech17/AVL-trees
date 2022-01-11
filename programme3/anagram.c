@@ -30,7 +30,7 @@ bool isAnagram(char *str1, char *str2)
     {
         char *str1_copy = (char *)malloc(strlen(str1));
         char *str2_copy = (char *)malloc(strlen(str2));
-        // call sortArr() function to sort the arrays
+        // sortArr() trie les chaines de charactères dans l'ordre alphabétique
         strcpy(str1_copy, str1);
         sortArr(str1_copy);
         strcpy(str2_copy, str2);
@@ -102,22 +102,18 @@ int main(int argc, char **argv)
         return 0;
     }
     dict_t **dict = dictAlloc();
-
     FILE *pFile, *pFile2;
-    // création du dict avec 0 partout
-    pFile = fopen(argv[1], "r");
+    pFile = fopen(argv[1], "r"); // ouverture du  fichier en mode lecture
     if (pFile != NULL)
     {
         char *key = (char *)malloc(20);
         while (fscanf(pFile, "%s", key) != EOF)
         {
-            addItem(dict, key, 0);
+            addItem(dict, key, 0); // création du dict avec 0 partout
         }
     }
-
     incrementDict(dict, argv[1]);
-    
-    int count =0;
+    int count = 0;
     pFile = fopen(argv[1], "r");
     if (pFile != NULL)
     {
@@ -130,8 +126,8 @@ int main(int argc, char **argv)
             {
                 if (getItem(dict, a) == i)
                 {
-                    if(getItem(dict, a) >=1)
-                        count ++;
+                    if (getItem(dict, a) >= 1)
+                        count++;
                     printf("%s (%d): ", a, getItem(dict, a));
                     pFile2 = fopen(argv[1], "r");
                     if (pFile2 != NULL)
@@ -148,8 +144,8 @@ int main(int argc, char **argv)
                 }
             }
         }
-        printf("Nombre de mots dans le dictionnaire possédant au moins 1 anagramme : %d\n",count);
-        fclose(pFile);
+        printf("Nombre de mots dans le dictionnaire possédant au moins 1 anagramme : %d\n", count);
+        fclose(pFile); // fermeture fichier
         fclose(pFile2);
     }
     else
