@@ -8,7 +8,6 @@
 char *sortArr(char[]);
 bool isAnagram(char *, char *);
 bool isEqual(char *, char *);
-
 bool isEqual(char *str1, char *str2)
 {
     int i;
@@ -21,7 +20,6 @@ bool isEqual(char *str1, char *str2)
     }
     return true;
 }
-
 bool isAnagram(char *str1, char *str2)
 {
     if (strlen(str1) != strlen(str2) || isEqual(str1, str2))
@@ -100,7 +98,7 @@ int main(int argc, char **argv)
 {
     if (argc != 2)
     {
-        printf("veuillez entrer une commande valide ");
+        printf("veuillez entrer une commande valide \n");
         return 0;
     }
     dict_t **dict = dictAlloc();
@@ -117,17 +115,15 @@ int main(int argc, char **argv)
         }
     }
 
-    //deleteDoublons(dict);
-    delItem(dict,"AI");
     incrementDict(dict, argv[1]);
-    //printDict(dict);
+    
     int count =0;
     pFile = fopen(argv[1], "r");
     if (pFile != NULL)
     {
         char *a = (char *)malloc(20);
         char *b = (char *)malloc(20);
-        for (int i = 20; i >= 0; i--)
+        for (int i = 25; i >= 0; i--)
         {
             pFile = fopen(argv[1], "r");
             while (fscanf(pFile, "%s", a) != EOF)

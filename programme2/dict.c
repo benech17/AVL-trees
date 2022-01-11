@@ -88,9 +88,22 @@ void addItem(dict_t **dict, char *key, int value)
 void printDict(dict_t **dict)
 {
    dict_t *ptr;
+   int count =0;
    for (ptr = *dict; ptr != NULL; ptr = ptr->next)
    {
       printf("%s | %d\n", ptr->key, ptr->value);
+      count++;
    }
+   printf("%d signatures.\n",count);
 }
 
+/*void deleteDoublons(dict_t **dict)
+{
+   dict_t *ptr;
+   for (ptr = *dict; ptr != NULL; ptr = ptr->next)
+   {
+      if(strcmp(ptr->key,ptr->next->key) || strcmp(ptr->key,ptr->next->next->key) )
+      delItem(dict,ptr->key);
+   }
+}
+*/
